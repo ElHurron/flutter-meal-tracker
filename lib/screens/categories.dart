@@ -3,7 +3,7 @@ import 'package:meal_tracker/dummy/dummy_data.dart';
 import 'package:meal_tracker/widgets/category/category_grid_item.dart';
 
 import '../models/category/category.dart';
-import 'meals.dart';
+import 'meal/meals.dart';
 
 /// Here the category selection will be handled
 class CategoriesScreen extends StatelessWidget {
