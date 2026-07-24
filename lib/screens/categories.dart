@@ -3,30 +3,33 @@ import 'package:meal_tracker/dummy/dummy_data.dart';
 import 'package:meal_tracker/widgets/category/category_grid_item.dart';
 
 import '../models/category/category.dart';
+import '../models/meal/meal.dart';
 import 'meal/meals.dart';
 
 /// Here the category selection will be handled
 class CategoriesScreen extends StatelessWidget {
-  const CategoriesScreen({super.key});
+  CategoriesScreen({super.key, required this.onToggleFavorite, required this.availableMeals});
+
+  List<Meal> availableMeals;
+  final void Function(Meal meal) onToggleFavorite;
 
   void _selectCategory(BuildContext context, Category category) {
-    var meals = dummyMeals
+    var meals = availableMeals
         .where((meal) => meal.categories.contains(category.id))
         .toList();
 
     Navigator.of(context).push(MaterialPageRoute(
         builder: (ctx) => MealsScreen(
           title: category.title,
-          meals: meals
+          meals: meals,
+          onToggleFavorite: onToggleFavorite,
         ))
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Pick your category')),
-      body: GridView(
+    return GridView(
         padding: EdgeInsets.all(24),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
@@ -41,7 +44,6 @@ class CategoriesScreen extends StatelessWidget {
                 onSelectCategory: ()  => _selectCategory(context, cat),
             )
         ],
-      ),
     );
   }
 }
