@@ -1,88 +1,47 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../providers/filter/filters_provider.dart';
+
 //import 'package:meal_tracker/screens/tabs.dart';
 //import 'package:meal_tracker/widgets/main_drawer.dart';
 
-enum Filter {
-  glutenFree,
-  lactoseFree,
-  vegetarian,
-  vegan
-}
+class FiltersScreen extends ConsumerWidget {
+  FiltersScreen({super.key});
 
-class FiltersScreen extends StatefulWidget {
-  FiltersScreen({super.key, required this.currentFilters});
-
-  Map<Filter, bool> currentFilters;
-
-  @override
-  State<FiltersScreen> createState() {
-    return _FilterScreenState();
-  }
-}
-
-class _FilterScreenState extends State<FiltersScreen> {
-  var _glutenFreeFilterSet = false;
-  var _lactoseFreeFilterSet = false;
-  var _vegetarian = false;
-  var _vegan = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _glutenFreeFilterSet = widget.currentFilters[Filter.glutenFree]!;
-    _lactoseFreeFilterSet = widget.currentFilters[Filter.lactoseFree]!;
-    _vegetarian = widget.currentFilters[Filter.vegetarian]!;
-    _vegan = widget.currentFilters[Filter.vegan]!;
-  }
-
-  Widget _buildSwitchFilter(BuildContext context,
-      String title,
-      String subTitle,
-      bool currentValue,
-      void Function(bool newValue) onSwitch,) {
+  Widget _buildSwitchFilter(
+    BuildContext context,
+    WidgetRef ref,
+    String title,
+    String subTitle,
+    Filter filter,
+    Map<Filter, bool> activeFilters,
+  ) {
     return SwitchListTile(
-      value: currentValue,
+      value: activeFilters[filter]!,
       onChanged: (newValue) {
-        setState(() {
-          onSwitch(newValue);
-        });
+        ref.read(filtersProvider.notifier).setFilter(filter, newValue);
       },
       title: Text(
         title,
-        style: Theme
-            .of(context)
-            .textTheme
-            .titleLarge!
-            .copyWith(
-          color: Theme
-              .of(context)
-              .colorScheme
-              .onSurface,
+        style: Theme.of(context).textTheme.titleLarge!.copyWith(
+          color: Theme.of(context).colorScheme.onSurface,
         ),
       ),
       subtitle: Text(
         subTitle,
-        style: Theme
-            .of(context)
-            .textTheme
-            .labelMedium!
-            .copyWith(
-          color: Theme
-              .of(context)
-              .colorScheme
-              .onSurface,
+        style: Theme.of(context).textTheme.labelMedium!.copyWith(
+          color: Theme.of(context).colorScheme.onSurface,
         ),
       ),
-      activeThumbColor: Theme
-          .of(context)
-          .colorScheme
-          .tertiary,
+      activeThumbColor: Theme.of(context).colorScheme.tertiary,
       contentPadding: EdgeInsets.only(left: 34, right: 22),
     );
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    var activeFilters = ref.watch(filtersProvider);
     return Scaffold(
       appBar: AppBar(title: Text('Your filters')),
       /*drawer: MainDrawer(
@@ -95,37 +54,41 @@ class _FilterScreenState extends State<FiltersScreen> {
           }
         },
       ),*/
-      body: PopScope(
-        canPop: false,
-        onPopInvokedWithResult: (bool didPop, dynamic result) {
-          if(didPop) return;
-          Navigator.of(context).pop({
-            Filter.glutenFree: _glutenFreeFilterSet,
-            Filter.lactoseFree: _lactoseFreeFilterSet,
-            Filter.vegetarian: _vegetarian,
-            Filter.vegan: _vegan,
-          });
-        },
-        child: Column(
-          children: [
-            _buildSwitchFilter(
-                context, 'Gluten-free', 'Only include gluten free meals',
-                _glutenFreeFilterSet, (newValue) =>
-            _glutenFreeFilterSet = newValue),
-            _buildSwitchFilter(
-                context, 'Lactose-free', 'Only include lactose free meals',
-                _lactoseFreeFilterSet, (newValue) =>
-            _lactoseFreeFilterSet = newValue),
-            _buildSwitchFilter(
-                context, 'Vegetarian', 'Only include vegetarian meals',
-                _vegetarian, (newValue) =>
-            _vegetarian = newValue),
-            _buildSwitchFilter(
-                context, 'Vegan', 'Only include vegan meals',
-                _vegan, (newValue) =>
-            _vegan = newValue),
-          ],
-        ),
+      body: Column(
+        children: [
+          _buildSwitchFilter(
+            context,
+            ref,
+            'Gluten-free',
+            'Only include gluten free meals',
+            Filter.glutenFree,
+            activeFilters,
+          ),
+          _buildSwitchFilter(
+            context,
+            ref,
+            'Lactose-free',
+            'Only include lactose free meals',
+            Filter.lactoseFree,
+            activeFilters,
+          ),
+          _buildSwitchFilter(
+            context,
+            ref,
+            'Vegetarian',
+            'Only include vegetarian meals',
+            Filter.vegetarian,
+            activeFilters,
+          ),
+          _buildSwitchFilter(
+            context,
+            ref,
+            'Vegan',
+            'Only include vegan meals',
+            Filter.vegan,
+            activeFilters,
+          ),
+        ],
       ),
     );
   }
